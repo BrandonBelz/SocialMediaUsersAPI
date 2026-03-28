@@ -24,7 +24,7 @@ namespace Models
 
         [NotMapped]
         public List<User> Friends =>
-            (List<User>)FriendshipsAsUser1.Select(f => f.User2)
-                .Concat(FriendshipsAsUser2.Select(f => f.User1));
+            FriendshipsAsUser1.Select(f => f.User2)
+                .Concat(FriendshipsAsUser2.Select(f => f.User1)).ToList();
     }
 }
