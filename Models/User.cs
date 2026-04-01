@@ -8,6 +8,10 @@ namespace Models
 
         public string Username { get; set; } = String.Empty;
 
+        public string Email { get; set; } = String.Empty;
+
+        public string HashedPassword { get; set; } = String.Empty;
+
         public string Biography { get; set; } = String.Empty;
 
         public DateTime JoinedOn { get; set; } = DateTime.Now;
@@ -25,6 +29,7 @@ namespace Models
         [NotMapped]
         public List<User> Friends =>
             FriendshipsAsUser1.Select(f => f.User2)
-                .Concat(FriendshipsAsUser2.Select(f => f.User1)).ToList();
+                .Concat(FriendshipsAsUser2.Select(f => f.User1))
+                .ToList();
     }
 }

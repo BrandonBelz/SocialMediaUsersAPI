@@ -15,6 +15,10 @@ namespace Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+
             modelBuilder.Entity<FriendRequest>().HasKey(
                 fr => new { fr.RequesterId, fr.RecipientId });
 
