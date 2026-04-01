@@ -1,6 +1,8 @@
 using Data;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Dtos;
+using Mappers;
 
 namespace Controllers {
 
@@ -13,7 +15,8 @@ public class UserController : ControllerBase {
 
     [HttpGet]
     public IActionResult GetAll() {
-        List<User> users = _context.Users.ToList();
+        List<UserPublicDto> users =
+            _context.Users.Select(u => u.ToPublicDto()).ToList();
 
         return Ok(users);
     }
@@ -26,7 +29,7 @@ public class UserController : ControllerBase {
             return NotFound();
         }
 
-        return Ok(user);
+        return Ok(user.ToPublicDto());
     }
 }
 }
