@@ -46,5 +46,25 @@ namespace Controllers
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id },
                                    newUser.ToPrivateDto());
         }
+
+        [HttpPut]
+        [Route("{id}")]
+        public IActionResult Update([FromRoute] int id,
+                                    [FromBody] UpdateUserRequestDto requestDto)
+        {
+            User? user = _context.Users.FirstOrDefault(x => x.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Email = requestDto.Email;
+            user.Username = requestDto.Username;
+            user.Biography = requestDto.Biography;
+
+            _context.SaveChanges();
+            return Ok(user.ToPrivateDto());
+        }
     }
 }
