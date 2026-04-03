@@ -66,5 +66,22 @@ namespace Controllers
             _context.SaveChanges();
             return Ok(user.ToPrivateDto());
         }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            User? toDelete = _context.Users.FirstOrDefault(x => x.Id == id);
+
+            if (toDelete == null)
+            {
+                return NotFound();
+            }
+
+            _context.Users.Remove(toDelete);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
