@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Dtos;
 using Mappers;
-using Microsoft.EntityFrameworkCore;
+using Interfaces;
 
 namespace Controllers
 {
@@ -13,22 +13,27 @@ namespace Controllers
     public class UserController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
+        private readonly IUserRepository _userRepo;
 
-        public UserController(ApplicationDBContext context) { _context = context; }
+        public UserController(ApplicationDBContext context,
+                              IUserRepository userRepository)
+        {
+            _userRepo = userRepository;
+            _context = context;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            List<UserPublicDto> users =
-                await _context.Users.Select(u => u.ToPublicDto()).ToListAsync();
+            List<User> users = await _userRepo.GetUsersAsync();
 
-            return Ok(users);
+            return Ok(users.Select(u => u.ToPublicDto()));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _userRepo.GetUserAsync(id);
 
             if (user == null)
             {
@@ -42,9 +47,8 @@ namespace Controllers
         public async Task<IActionResult>
         Create([FromBody] CreateUserRequestDto requestDto)
         {
-            User newUser = requestDto.ToUserFromCreate();
-            await _context.Users.AddAsync(newUser);
-            await _context.SaveChangesAsync();
+            User newUser =
+                await _userRepo.CreateAsync(requestDto.ToUserFromCreate());
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id },
                                    newUser.ToPrivateDto());
         }
@@ -54,18 +58,13 @@ namespace Controllers
         public async Task<IActionResult>
         Update([FromRoute] int id, [FromBody] UpdateUserRequestDto requestDto)
         {
-            User? user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            User? user = await _userRepo.UpdateAsync(id, requestDto);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            user.Email = requestDto.Email;
-            user.Username = requestDto.Username;
-            user.Biography = requestDto.Biography;
-
-            await _context.SaveChangesAsync();
             return Ok(user.ToPrivateDto());
         }
 
@@ -73,16 +72,12 @@ namespace Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            User? toDelete =
-                await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            User? toDelete = await _userRepo.DeleteAsync(id);
 
             if (toDelete == null)
             {
                 return NotFound();
             }
-
-            _context.Users.Remove(toDelete);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
