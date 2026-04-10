@@ -1,0 +1,53 @@
+services:
+  init:
+    image: python:3.12-slim
+    volumes:
+      - keys:/app/keys
+      - ./init.py:/init.py
+    command: sh -c "pip install cryptography -q && python3 /init.py"
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "1434:1433"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -C -Q "SELECT 1"
+      interval: 5s
+      retries: 10
+      start_period: 30s
+
+  migrate:
+    image: mcr.microsoft.com/dotnet/sdk:10.0
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: sh -c "dotnet tool install --global dotnet-ef; dotnet nuget locals all --clear && dotnet restore && /root/.dotnet/tools/dotnet-ef database update"
+
+    environment:
+      ConnectionStrings__DefaultConnection: "Data Source=db,1433;User Id=sa;Password=${DB_PASSWORD};Initial Catalog=SocialMediaUsers;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;"
+    depends_on:
+      db:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Jwt__PublicKeyPath: "keys/public.pem"
+      Jwt__PrivateKeyPath: "keys/private.pem"
+      ConnectionStrings__DefaultConnection: "Data Source=db,1433;User Id=sa;Password=${DB_PASSWORD};Initial Catalog=SocialMediaUsers;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;"
+    volumes:
+      - keys:/app/keys
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  keys:

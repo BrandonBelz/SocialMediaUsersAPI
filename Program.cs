@@ -23,9 +23,6 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-RSA publicKey = RSA.Create();
-publicKey.ImportFromPem(File.ReadAllText(builder.Configuration["Jwt:PublicKeyPath"]!));
-
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,7 +35,14 @@ builder
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new RsaSecurityKey(publicKey),
+            IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+            {
+                var publicKey = RSA.Create();
+                publicKey.ImportFromPem(
+                    File.ReadAllText(builder.Configuration["Jwt:PublicKeyPath"]!)
+                );
+                return new[] { new RsaSecurityKey(publicKey) };
+            },
         };
         options.Events = new JwtBearerEvents
         {
