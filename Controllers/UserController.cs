@@ -1,5 +1,4 @@
-using System.Security.Claims;
-using Data;
+using System.Text.Json.Nodes;
 using Dtos;
 using Interfaces;
 using Mappers;
@@ -11,17 +10,10 @@ namespace Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
-        private readonly ApplicationDBContext _context;
-        private readonly IUserRepository _userRepo;
-        private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-        public UserController(ApplicationDBContext context, IUserRepository userRepository)
-        {
-            _userRepo = userRepository;
-            _context = context;
-        }
+        public UserController(IUserRepository userRepository)
+            : base(userRepository) { }
 
         [Authorize]
         [HttpGet]
@@ -59,13 +51,13 @@ namespace Controllers
         }
 
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> Update(
             [FromRoute] int id,
-            [FromBody] UpdateUserRequestDto requestDto
+            [FromBody] JsonObject requestJson
         )
         {
-            User? user = await _userRepo.UpdateAsync(id, requestDto);
+            User? user = await _userRepo.UpdateAsync(id, requestJson);
 
             if (user == null)
             {
@@ -87,6 +79,20 @@ namespace Controllers
             }
 
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            User? me = await _userRepo.GetUserAsync(CurrentUserId);
+
+            if (me == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(me.ToPrivateDto());
         }
     }
 }
