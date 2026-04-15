@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
+using ApiKeyAuth;
 using Data;
 using Interfaces;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,35 +26,55 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 });
 
 builder
-    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .Services.AddAuthentication(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        options.DefaultScheme = "Smart";
+        options.DefaultChallengeScheme = "Smart";
+        options.DefaultAuthenticateScheme = "Smart";
+    })
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthHandler>("ApiKey", _ => { })
+    .AddJwtBearer(
+        "Jwt",
+        options =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                var publicKey = RSA.Create();
-                publicKey.ImportFromPem(
-                    File.ReadAllText(builder.Configuration["Jwt:PublicKeyPath"]!)
-                );
-                return new[] { new RsaSecurityKey(publicKey) };
-            },
-        };
-        options.Events = new JwtBearerEvents
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+                {
+                    var publicKey = RSA.Create();
+                    publicKey.ImportFromPem(
+                        File.ReadAllText(builder.Configuration["Jwt:PublicKeyPath"]!)
+                    );
+                    return new[] { new RsaSecurityKey(publicKey) };
+                },
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                    return Task.CompletedTask;
+                },
+            };
+        }
+    )
+    .AddPolicyScheme(
+        "Smart",
+        "ApiKey or JWT",
+        options =>
         {
-            OnMessageReceived = context =>
+            options.ForwardDefaultSelector = context =>
             {
-                context.Token = context.Request.Cookies["jwt"];
-                return Task.CompletedTask;
-            },
-        };
-    });
+                return context.Request.Headers.ContainsKey("X-Api-Key") ? "ApiKey" : "Jwt";
+            };
+        }
+    );
 builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>

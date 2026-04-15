@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Data;
@@ -68,9 +69,9 @@ namespace Repository
 
             var entityProps = typeof(User).GetProperties();
 
-            foreach (var prop in entityProps)
+            foreach (PropertyInfo prop in entityProps)
             {
-                if (!patchJson.TryGetPropertyValue(prop.Name, out var node))
+                if (!patchJson.TryGetPropertyValue(prop.Name, out JsonNode? node))
                 {
                     continue;
                 }
