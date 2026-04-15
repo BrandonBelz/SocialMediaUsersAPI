@@ -28,6 +28,11 @@ namespace Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
+            if (!User.IsInRole("Service") || CurrentUserId != id)
+            {
+                return Unauthorized();
+            }
+
             User? user = await _userRepo.GetUserAsync(id);
 
             if (user == null)
@@ -57,6 +62,11 @@ namespace Controllers
             [FromBody] JsonObject requestJson
         )
         {
+            if (!User.IsInRole("Service") || CurrentUserId != id)
+            {
+                return Unauthorized();
+            }
+
             User? user = await _userRepo.UpdateAsync(id, requestJson);
 
             if (user == null)
@@ -71,6 +81,11 @@ namespace Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            if (!User.IsInRole("Service") || CurrentUserId != id)
+            {
+                return Unauthorized();
+            }
+
             User? toDelete = await _userRepo.DeleteAsync(id);
 
             if (toDelete == null)
@@ -85,6 +100,11 @@ namespace Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {
+            if (User.IsInRole("Service"))
+            {
+                return NotFound();
+            }
+
             User? me = await _userRepo.GetUserAsync(CurrentUserId);
 
             if (me == null)

@@ -12,11 +12,17 @@ namespace Controllers
     public class AuthController : BaseController
     {
         private readonly TokenService _tokenService;
+        private readonly IConfiguration _config;
 
-        public AuthController(IUserRepository userRepository, TokenService service)
+        public AuthController(
+            IUserRepository userRepository,
+            TokenService service,
+            IConfiguration config
+        )
             : base(userRepository)
         {
             _tokenService = service;
+            _config = config;
         }
 
         [AllowAnonymous]
@@ -51,6 +57,15 @@ namespace Controllers
         {
             Response.Cookies.Delete("jwt");
             return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("jwt-key")]
+        public IActionResult GetJwtKey()
+        {
+            return Ok(
+                new { publicKey = System.IO.File.ReadAllText(_config["Jwt:PublicKeyPath"]!) }
+            );
         }
     }
 }
