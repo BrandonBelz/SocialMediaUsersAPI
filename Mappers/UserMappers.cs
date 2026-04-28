@@ -17,7 +17,7 @@ namespace Mappers
                 Id = user.Id,
                 Username = user.Username,
                 Biography = user.Biography,
-                JoinedOn = user.JoinedOn
+                JoinedOn = user.JoinedOn,
             };
         }
 
@@ -29,7 +29,7 @@ namespace Mappers
                 Username = user.Username,
                 Email = user.Email,
                 Biography = user.Biography,
-                JoinedOn = user.JoinedOn
+                JoinedOn = user.JoinedOn,
             };
         }
 
@@ -39,7 +39,33 @@ namespace Mappers
             {
                 Username = createDto.Username,
                 Email = createDto.Email,
-                HashedPassword = BCrypt.Net.BCrypt.HashPassword(createDto.Password)
+                HashedPassword = BCrypt.Net.BCrypt.HashPassword(createDto.Password),
+            };
+        }
+
+        public static FriendshipMinimalDto ToFriendshipMinimalDto(this Friendship friendship)
+        {
+            return new FriendshipMinimalDto
+            {
+                User1Id = friendship.User1Id,
+                User1 = friendship.User1.ToMinimizedDto(),
+                User2Id = friendship.User2Id,
+                User2 = friendship.User2.ToMinimizedDto(),
+                FriendsSince = friendship.FriendsSince,
+            };
+        }
+
+        public static FriendRequestMinimalDto ToFriendRequestMinimalDto(
+            this FriendRequest friendRequest
+        )
+        {
+            return new FriendRequestMinimalDto
+            {
+                RecipientId = friendRequest.RecipientId,
+                Recipient = friendRequest.Recipient.ToMinimizedDto(),
+                RequesterId = friendRequest.RequesterId,
+                Requester = friendRequest.Requester.ToMinimizedDto(),
+                SentAt = friendRequest.SentAt,
             };
         }
     }
