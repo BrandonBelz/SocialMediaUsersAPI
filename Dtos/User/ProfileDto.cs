@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Models;
 
 namespace Dtos
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Relationship
     {
         Stranger,

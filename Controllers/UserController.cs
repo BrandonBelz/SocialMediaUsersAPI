@@ -124,8 +124,8 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("{id}/profile")]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProfileDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProfile([FromRoute] int id)
         {
