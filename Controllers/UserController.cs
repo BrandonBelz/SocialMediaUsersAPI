@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Dtos;
 using Interfaces;
 using Mappers;
@@ -18,9 +17,28 @@ namespace Controllers
         [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll([FromQuery] string? query)
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAll([FromQuery] UsersQueryDto query)
         {
-            List<User> users = await _userRepo.GetUsersAsync(query);
+            List<User> users;
+            if (query.ExactMatch)
+            {
+                if (query.Username == null)
+                {
+                    return NotFound();
+                }
+                User? user = await _userRepo.GetUserAsync(query.Username);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                users = new();
+                users.Add(user);
+            }
+            else
+            {
+                users = await _userRepo.GetUsersAsync(query.Username);
+            }
 
             return Ok(users.Select(u => u.ToMinimizedDto()));
         }
