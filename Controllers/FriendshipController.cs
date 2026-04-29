@@ -33,7 +33,7 @@ namespace Controllers
         [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(void), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> AddFriend([FromRoute] int id, [FromBody] int otherId)
@@ -129,7 +129,7 @@ namespace Controllers
         [Authorize]
         [HttpPost("requests")]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(void), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> SendFriendRequest(
