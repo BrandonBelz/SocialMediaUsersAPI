@@ -123,7 +123,7 @@ namespace Controllers
         }
 
         [Authorize]
-        [HttpGet("profile")]
+        [HttpGet("{id}/profile")]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProfileDto), StatusCodes.Status200OK)]
