@@ -68,5 +68,10 @@ namespace Mappers
                 SentAt = friendRequest.SentAt,
             };
         }
+
+        public static ProfileDto ToProfileDto(this User user, int viewerId)
+        {
+            return new ProfileDto(user, viewerId);
+        }
     }
 }

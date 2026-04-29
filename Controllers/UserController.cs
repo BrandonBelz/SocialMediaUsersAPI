@@ -121,5 +121,27 @@ namespace Controllers
 
             return Ok(me.ToPrivateDto());
         }
+
+        [Authorize]
+        [HttpGet("profile")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProfileDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProfile([FromRoute] int id)
+        {
+            if (User.IsInRole("Service") || CurrentUserId == id)
+            {
+                return Unauthorized();
+            }
+
+            User? user = await _userRepo.GetUserAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user.ToProfileDto(CurrentUserId));
+        }
     }
 }
