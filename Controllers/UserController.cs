@@ -17,6 +17,7 @@ namespace Controllers
 
         [Authorize]
         [HttpGet]
+        [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromQuery] string? query)
         {
             List<User> users = await _userRepo.GetUsersAsync(query);
@@ -26,6 +27,8 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(UserPublicDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             User? user = await _userRepo.GetUserAsync(id);
@@ -40,6 +43,7 @@ namespace Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status201Created)]
         public async Task<IActionResult> Create([FromBody] CreateUserRequestDto requestDto)
         {
             User newUser = await _userRepo.CreateAsync(requestDto.ToUserFromCreate());
@@ -52,9 +56,12 @@ namespace Controllers
 
         [Authorize]
         [HttpPatch("{id}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> Update(
             [FromRoute] int id,
-            [FromBody] JsonObject requestJson
+            [FromBody] UpdateUserRequestDto requestDto
         )
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -62,7 +69,7 @@ namespace Controllers
                 return Unauthorized();
             }
 
-            User? user = await _userRepo.UpdateAsync(id, requestJson);
+            User? user = await _userRepo.UpdateAsync(id, requestDto);
 
             if (user == null)
             {
@@ -74,6 +81,9 @@ namespace Controllers
 
         [Authorize]
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -93,6 +103,8 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("me")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMe()
         {
             if (User.IsInRole("Service"))

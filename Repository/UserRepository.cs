@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Data;
+using Dtos;
 using Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -58,7 +59,7 @@ namespace Repository
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
 
-        public async Task<User?> UpdateAsync(int id, JsonObject patchJson)
+        public async Task<User?> UpdateAsync(int id, UpdateUserRequestDto requestDto)
         {
             User? user = await _context.Users.FindAsync(id);
 
@@ -67,23 +68,19 @@ namespace Repository
                 return null;
             }
 
-            var entityProps = typeof(User).GetProperties();
-
-            foreach (PropertyInfo prop in entityProps)
+            if (requestDto.Biography != null)
             {
-                if (!patchJson.TryGetPropertyValue(prop.Name, out JsonNode? node))
-                {
-                    continue;
-                }
+                user.Biography = requestDto.Biography;
+            }
 
-                if (node == null)
-                {
-                    prop.SetValue(user, null);
-                    continue;
-                }
+            if (requestDto.Email != null)
+            {
+                user.Email = requestDto.Email;
+            }
 
-                var value = node.Deserialize(prop.PropertyType);
-                prop.SetValue(user, value);
+            if (requestDto.Username != null)
+            {
+                user.Username = requestDto.Username;
             }
 
             await _context.SaveChangesAsync();

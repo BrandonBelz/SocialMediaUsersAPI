@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+using Dtos;
 using Models;
 
 namespace Interfaces
@@ -9,7 +9,7 @@ namespace Interfaces
         Task<User?> GetUserAsync(int id);
         Task<User?> GetUserAsync(string username);
         Task<User> CreateAsync(User user);
-        Task<User?> UpdateAsync(int id, JsonObject patchJson);
+        Task<User?> UpdateAsync(int id, UpdateUserRequestDto requestDto);
         Task<User?> DeleteAsync(int id);
 
         Task<List<User>?> GetFriendsAsync(int id);

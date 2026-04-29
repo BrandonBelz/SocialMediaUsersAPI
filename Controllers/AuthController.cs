@@ -27,6 +27,8 @@ namespace Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             User? user = await _userRepo.GetUserAsync(dto.Username);
@@ -61,11 +63,10 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("jwt-key")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         public IActionResult GetJwtKey()
         {
-            return Ok(
-                new { publicKey = System.IO.File.ReadAllText(_config["Jwt:PublicKeyPath"]!) }
-            );
+            return Ok(System.IO.File.ReadAllText(_config["Jwt:PublicKeyPath"]!));
         }
     }
 }

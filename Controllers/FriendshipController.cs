@@ -1,3 +1,4 @@
+using Dtos;
 using Interfaces;
 using Mappers;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,8 @@ namespace Controllers
 
         [Authorize]
         [HttpGet]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFriends([FromRoute] int id)
         {
             List<User>? friends = await _userRepo.GetFriendsAsync(id);
@@ -29,6 +32,10 @@ namespace Controllers
 
         [Authorize]
         [HttpPost]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> AddFriend([FromRoute] int id, [FromBody] int otherId)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -50,11 +57,14 @@ namespace Controllers
                 return NotFound();
             }
 
-            return Ok(friendship.ToFriendshipMinimalDto());
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         [Authorize]
         [HttpDelete("{friendId}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> RemoveFriend([FromRoute] int id, [FromRoute] int friendId)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -74,6 +84,9 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("requests/sent")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetSentRequests([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -93,6 +106,9 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("requests/received")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetReceivedRequests([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -112,6 +128,10 @@ namespace Controllers
 
         [Authorize]
         [HttpPost("requests")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> SendFriendRequest(
             [FromRoute] int id,
             [FromBody] int otherId
@@ -143,11 +163,14 @@ namespace Controllers
                 return NotFound();
             }
 
-            return Ok(friendRequest.ToFriendRequestMinimalDto());
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         [Authorize]
         [HttpDelete("requests/{friendId}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteFriendRequest(
             [FromRoute] int id,
             [FromRoute] int friendId
