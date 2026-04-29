@@ -1,13 +1,22 @@
-namespace Dtos {
-public class UserPrivateDto {
-    public int Id { get; set; }
+using System.ComponentModel.DataAnnotations;
 
-    public string Username { get; set; } = String.Empty;
+namespace Dtos
+{
+    public class UserPrivateDto
+    {
+        [Required]
+        public int Id { get; set; }
 
-    public string Email { get; set; } = String.Empty;
+        [Required]
+        public string Username { get; set; } = String.Empty;
 
-    public string Biography { get; set; } = String.Empty;
+        [Required]
+        public string Email { get; set; } = String.Empty;
 
-    public DateTime JoinedOn { get; set; } = DateTime.Now;
-}
+        [Required]
+        public string Biography { get; set; } = String.Empty;
+
+        [Required]
+        public DateTime JoinedOn { get; set; } = DateTime.Now;
+    }
 }

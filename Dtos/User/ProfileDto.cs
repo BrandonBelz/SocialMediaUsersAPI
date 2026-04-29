@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Models;
 
 namespace Dtos
@@ -12,12 +13,16 @@ namespace Dtos
 
     public class ProfileDto
     {
+        [Required]
         public int Id { get; set; }
 
+        [Required]
         public string Username { get; set; } = String.Empty;
 
+        [Required]
         public string Biography { get; set; } = String.Empty;
 
+        [Required]
         public DateTime JoinedOn { get; set; } = DateTime.Now;
 
         private List<User> Friends { get; set; }
@@ -25,8 +30,10 @@ namespace Dtos
         private List<FriendRequest> ReceivedRequests { get; set; }
         private int ViewerId { get; set; }
 
+        [Required]
         public int NumFriends => Friends.Count();
 
+        [Required]
         public Relationship RelationshipToUser => GetRelationship();
 
         public ProfileDto(User user, int viewerId)
