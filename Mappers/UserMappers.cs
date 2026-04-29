@@ -73,5 +73,10 @@ namespace Mappers
         {
             return new ProfileDto(user, viewerId);
         }
+
+        public static JwtDto ToJwtDto(this string jwt)
+        {
+            return new JwtDto { JwtKey = jwt };
+        }
     }
 }

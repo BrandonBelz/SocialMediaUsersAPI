@@ -33,24 +33,24 @@ namespace Controllers
         [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(Error409Dto), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<IActionResult> AddFriend([FromRoute] int id, [FromBody] int otherId)
+        public async Task<IActionResult> AddFriend([FromRoute] int id, [FromBody] UserIdDto other)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
                 return Unauthorized();
             }
 
-            Friendship? friendship = await _userRepo.GetFriendshipAsync(id, otherId);
+            Friendship? friendship = await _userRepo.GetFriendshipAsync(id, other.Id);
 
             if (friendship != null)
             {
-                return Conflict("Friendship already exists.");
+                return Conflict(new Error409Dto("Friendship already exists."));
             }
 
-            friendship = await _userRepo.AcceptRequest(id, otherId);
+            friendship = await _userRepo.AcceptRequest(id, other.Id);
 
             if (friendship == null)
             {
@@ -129,12 +129,12 @@ namespace Controllers
         [Authorize]
         [HttpPost("requests")]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(Error409Dto), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> SendFriendRequest(
             [FromRoute] int id,
-            [FromBody] int otherId
+            [FromBody] UserIdDto other
         )
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
@@ -142,21 +142,21 @@ namespace Controllers
                 return Unauthorized();
             }
 
-            Friendship? friendship = await _userRepo.GetFriendshipAsync(id, otherId);
+            Friendship? friendship = await _userRepo.GetFriendshipAsync(id, other.Id);
 
             if (friendship != null)
             {
                 return Conflict("A friendship exists between these two users.");
             }
 
-            FriendRequest? friendRequest = await _userRepo.GetFriendRequestAsync(id, otherId);
+            FriendRequest? friendRequest = await _userRepo.GetFriendRequestAsync(id, other.Id);
 
             if (friendRequest != null)
             {
                 return Conflict("A friend request is already active between these users.");
             }
 
-            friendRequest = await _userRepo.SendRequest(id, otherId);
+            friendRequest = await _userRepo.SendRequest(id, other.Id);
 
             if (friendRequest == null)
             {

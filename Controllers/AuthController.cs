@@ -1,5 +1,6 @@
 using Dtos;
 using Interfaces;
+using Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -63,10 +64,11 @@ namespace Controllers
 
         [Authorize]
         [HttpGet("jwt-key")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(JwtDto), StatusCodes.Status200OK)]
         public IActionResult GetJwtKey()
         {
-            return Ok(System.IO.File.ReadAllText(_config["Jwt:PublicKeyPath"]!));
+            string jwtKey = System.IO.File.ReadAllText(_config["Jwt:PublicKeyPath"]!);
+            return Ok(jwtKey.ToJwtDto());
         }
     }
 }
