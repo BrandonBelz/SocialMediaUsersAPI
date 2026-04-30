@@ -5,6 +5,7 @@ using Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
 using Services;
@@ -101,6 +102,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseStaticFiles(
+    new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "uploads")
+        ),
+        RequestPath = "/uploads",
+    }
+);
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
 app.MapControllers();
