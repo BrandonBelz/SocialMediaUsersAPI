@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using ApiKeyAuth;
 using Data;
@@ -25,6 +26,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder
     .Services.AddAuthentication(options =>
