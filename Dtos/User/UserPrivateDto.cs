@@ -18,5 +18,8 @@ namespace Dtos
 
         [Required]
         public DateTime JoinedOn { get; set; } = DateTime.Now;
+
+        [Required]
+        public string? ProfilePicUrl { get; set; }
     }
 }

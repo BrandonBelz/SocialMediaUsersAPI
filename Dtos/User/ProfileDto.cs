@@ -27,6 +27,9 @@ namespace Dtos
         [Required]
         public DateTime JoinedOn { get; set; } = DateTime.Now;
 
+        [Required]
+        public string? ProfilePicUrl { get; set; }
+
         private List<User> Friends { get; set; }
         private List<FriendRequest> SentRequests { get; set; }
         private List<FriendRequest> ReceivedRequests { get; set; }

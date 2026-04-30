@@ -56,13 +56,15 @@ namespace Controllers
 
         [Authorize]
         [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("jwt");
             return Ok();
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("jwt-key")]
         [ProducesResponseType(typeof(JwtDto), StatusCodes.Status200OK)]
         public IActionResult GetJwtKey()

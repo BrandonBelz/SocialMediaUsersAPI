@@ -18,6 +18,7 @@ namespace Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetAll([FromQuery] UsersQueryDto query)
         {
             List<User> users;
@@ -44,9 +45,72 @@ namespace Controllers
         }
 
         [Authorize]
+        [HttpPost("{id}/picture")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<IActionResult> UploadProfilePic(
+            [FromRoute] int id,
+            [FromForm] UploadProfilePicDto picDto
+        )
+        {
+            if (!User.IsInRole("Service") && CurrentUserId != id)
+            {
+                return Unauthorized();
+            }
+            User? user = await _userRepo.GetUserAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user = await _userRepo.AddProfilePic(user, picDto);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            return Created();
+        }
+
+        [Authorize]
+        [HttpDelete("{id}/picture")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteProfilePic([FromRoute] int id)
+        {
+            if (!User.IsInRole("Service") && CurrentUserId != id)
+            {
+                return Unauthorized();
+            }
+
+            User? user = await _userRepo.GetUserAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (user.ProfilePicUrl == null)
+            {
+                return NotFound();
+            }
+
+            await _userRepo.RemoveProfilePic(id);
+
+            return NoContent();
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(UserPublicDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             User? user = await _userRepo.GetUserAsync(id);
@@ -123,11 +187,12 @@ namespace Controllers
         [HttpGet("me")]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetMe()
         {
             if (User.IsInRole("Service"))
             {
-                return NotFound();
+                return Unauthorized();
             }
 
             User? me = await _userRepo.GetUserAsync(CurrentUserId);

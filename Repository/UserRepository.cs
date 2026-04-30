@@ -1,6 +1,3 @@
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Data;
 using Dtos;
 using Interfaces;
@@ -83,6 +80,83 @@ namespace Repository
                 user.Username = requestDto.Username;
             }
 
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        private async Task DeleteProfilePic(string? profilePicUrl, string picturesFilePath)
+        {
+            if (!string.IsNullOrEmpty(profilePicUrl))
+            {
+                string? oldFilePath = Path.Combine(
+                    picturesFilePath,
+                    Path.GetFileName(profilePicUrl)
+                );
+                if (File.Exists(oldFilePath))
+                {
+                    File.Delete(oldFilePath);
+                }
+            }
+        }
+
+        private async Task<string?> SaveProfilePic(
+            IFormFile pic,
+            User user,
+            string picturesFilePath
+        )
+        {
+            if (pic.Length > 8388608)
+            {
+                return null;
+            }
+
+            string[] allowed = new[] { "image/jpeg", "image/png" };
+            if (!allowed.Contains(pic.ContentType))
+            {
+                return null;
+            }
+
+            await DeleteProfilePic(user.ProfilePicUrl, picturesFilePath);
+
+            string fileName = $"{user.Id}.jpg";
+            string filePath = Path.Combine(picturesFilePath, fileName);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+            using (FileStream? stream = new FileStream(filePath, FileMode.Create))
+            {
+                await pic.CopyToAsync(stream);
+            }
+
+            return fileName;
+        }
+
+        private const string PicturesFilePath = "uploads/pictures";
+
+        public async Task<User?> AddProfilePic(User user, UploadProfilePicDto picDto)
+        {
+            string? fileName = await SaveProfilePic(picDto.ProfilePic, user, PicturesFilePath);
+
+            if (fileName == null)
+            {
+                return null;
+            }
+
+            user.ProfilePicUrl = $"{PicturesFilePath}/{fileName}";
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User?> RemoveProfilePic(int id)
+        {
+            User? user = await _context.Users.FindAsync(id);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            await DeleteProfilePic(user.ProfilePicUrl, PicturesFilePath);
+            user.ProfilePicUrl = null;
             await _context.SaveChangesAsync();
             return user;
         }
