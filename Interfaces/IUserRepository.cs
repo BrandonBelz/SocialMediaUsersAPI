@@ -6,7 +6,7 @@ namespace Interfaces
     public interface IUserRepository
     {
         Task<List<User>> GetUsersAsync(string? query);
-        Task<User?> GetUserAsync(int id);
+        Task<User?> GetUserAsync(int id, bool includeRelationships = false);
         Task<User?> GetUserAsync(string username);
         Task<User> CreateAsync(User user);
         Task<User?> UpdateAsync(int id, UpdateUserRequestDto requestDto);

@@ -211,7 +211,7 @@ namespace Controllers
                 return Unauthorized();
             }
 
-            User? user = await _userRepo.GetUserAsync(id);
+            User? user = await _userRepo.GetUserAsync(id, true);
 
             if (user == null)
             {

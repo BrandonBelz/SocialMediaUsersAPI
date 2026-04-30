@@ -46,8 +46,20 @@ namespace Repository
             return user;
         }
 
-        public async Task<User?> GetUserAsync(int id)
+        public async Task<User?> GetUserAsync(int id, bool includeRelationships = false)
         {
+            if (includeRelationships)
+            {
+                return await _context
+                    .Users.Include(u => u.FriendshipsAsUser1)
+                        .ThenInclude(f => f.User2)
+                    .Include(u => u.FriendshipsAsUser2)
+                        .ThenInclude(f => f.User1)
+                    .Include(u => u.ReceivedRequests)
+                    .Include(u => u.SentRequests)
+                    .FirstOrDefaultAsync(u => u.Id == id);
+            }
+
             return await _context.Users.FindAsync(id);
         }
 
