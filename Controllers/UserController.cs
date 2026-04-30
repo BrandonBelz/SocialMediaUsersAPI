@@ -120,8 +120,16 @@ namespace Controllers
         [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Error409Dto), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Create([FromBody] CreateUserRequestDto requestDto)
         {
+            User? user = await _userRepo.GetUserAsync(requestDto.Username);
+
+            if (user != null)
+            {
+                return Conflict(new Error409Dto("Username is taken."));
+            }
+
             User newUser = await _userRepo.CreateAsync(requestDto.ToUserFromCreate());
             return CreatedAtAction(
                 nameof(GetById),
