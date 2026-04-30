@@ -46,6 +46,7 @@ services:
       ConnectionStrings__DefaultConnection: "Data Source=db,1433;User Id=sa;Password=${DB_PASSWORD};Initial Catalog=SocialMediaUsers;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;"
     volumes:
       - keys:/app/keys
+      - uploads:/app/uploads
     depends_on:
       migrate:
         condition: service_completed_successfully
