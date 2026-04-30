@@ -60,14 +60,8 @@ namespace Controllers
             {
                 return Unauthorized();
             }
-            User? user = await _userRepo.GetUserAsync(id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            user = await _userRepo.AddProfilePic(user, picDto);
+            User? user = await _userRepo.AddProfilePic(id, picDto);
 
             if (user == null)
             {

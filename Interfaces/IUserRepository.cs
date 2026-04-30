@@ -12,7 +12,7 @@ namespace Interfaces
         Task<User?> UpdateAsync(int id, UpdateUserRequestDto requestDto);
         Task<User?> DeleteAsync(int id);
 
-        Task<User?> AddProfilePic(User user, UploadProfilePicDto picDto);
+        Task<User?> AddProfilePic(int id, UploadProfilePicDto picDto);
         Task<User?> RemoveProfilePic(int id);
 
         Task<List<User>?> GetFriendsAsync(int id);

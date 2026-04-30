@@ -55,3 +55,4 @@ nunit-*.xml
 
 /keys/
 .env
+/uploads/*

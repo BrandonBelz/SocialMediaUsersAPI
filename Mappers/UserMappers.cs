@@ -7,7 +7,12 @@ namespace Mappers
     {
         public static UserMinimizedDto ToMinimizedDto(this User user)
         {
-            return new UserMinimizedDto { Id = user.Id, Username = user.Username };
+            return new UserMinimizedDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                ProfilePicUrl = user.ProfilePicUrl,
+            };
         }
 
         public static UserPublicDto ToPublicDto(this User user)
@@ -18,6 +23,7 @@ namespace Mappers
                 Username = user.Username,
                 Biography = user.Biography,
                 JoinedOn = user.JoinedOn,
+                ProfilePicUrl = user.ProfilePicUrl,
             };
         }
 
@@ -30,6 +36,7 @@ namespace Mappers
                 Email = user.Email,
                 Biography = user.Biography,
                 JoinedOn = user.JoinedOn,
+                ProfilePicUrl = user.ProfilePicUrl,
             };
         }
 

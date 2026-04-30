@@ -132,15 +132,18 @@ namespace Repository
 
         private const string PicturesFilePath = "uploads/pictures";
 
-        public async Task<User?> AddProfilePic(User user, UploadProfilePicDto picDto)
+        public async Task<User?> AddProfilePic(int id, UploadProfilePicDto picDto)
         {
+            User? user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return null;
+            }
             string? fileName = await SaveProfilePic(picDto.ProfilePic, user, PicturesFilePath);
-
             if (fileName == null)
             {
                 return null;
             }
-
             user.ProfilePicUrl = $"{PicturesFilePath}/{fileName}";
             await _context.SaveChangesAsync();
             return user;

@@ -47,6 +47,7 @@ namespace Dtos
             Username = user.Username;
             Biography = user.Biography;
             JoinedOn = user.JoinedOn;
+            ProfilePicUrl = user.ProfilePicUrl;
             Friends = user.Friends;
             SentRequests = user.SentRequests;
             ReceivedRequests = user.ReceivedRequests;
