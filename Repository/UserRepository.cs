@@ -168,7 +168,9 @@ namespace Repository
         {
             User? user = await _context
                 .Users.Include(u => u.FriendshipsAsUser1)
+                    .ThenInclude(f => f.User2)
                 .Include(u => u.FriendshipsAsUser2)
+                    .ThenInclude(f => f.User1)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
@@ -198,6 +200,7 @@ namespace Repository
         {
             User? user = await _context
                 .Users.Include(u => u.SentRequests)
+                    .ThenInclude(f => f.Recipient)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
@@ -212,6 +215,7 @@ namespace Repository
         {
             User? user = await _context
                 .Users.Include(u => u.ReceivedRequests)
+                    .ThenInclude(f => f.Requester)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
