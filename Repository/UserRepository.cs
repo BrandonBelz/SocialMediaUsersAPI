@@ -163,7 +163,10 @@ namespace Repository
 
         public async Task<List<User>?> GetFriendsAsync(int id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _context
+                .Users.Include(u => u.FriendshipsAsUser1)
+                .Include(u => u.FriendshipsAsUser2)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {
@@ -190,7 +193,9 @@ namespace Repository
 
         public async Task<List<User>?> GetSentRequestsAsync(int id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _context
+                .Users.Include(u => u.SentRequests)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {
@@ -202,7 +207,9 @@ namespace Repository
 
         public async Task<List<User>?> GetReceivedRequestsAsync(int id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _context
+                .Users.Include(u => u.ReceivedRequests)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {
