@@ -56,17 +56,17 @@ namespace Dtos
 
         private Relationship GetRelationship()
         {
-            if (Friends.Select(u => u.Id == ViewerId).Any())
+            if (Friends.Any(u => u.Id == ViewerId))
             {
                 return Relationship.Friend;
             }
 
-            if (SentRequests.Select(f => f.RecipientId == ViewerId).Any())
+            if (SentRequests.Any(f => f.RecipientId == ViewerId))
             {
                 return Relationship.RequestReceived;
             }
 
-            if (ReceivedRequests.Select(f => f.RequesterId == ViewerId).Any())
+            if (ReceivedRequests.Any(f => f.RequesterId == ViewerId))
             {
                 return Relationship.RequestSent;
             }
