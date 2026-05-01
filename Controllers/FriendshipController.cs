@@ -36,11 +36,12 @@ namespace Controllers
         [ProducesResponseType(typeof(Error409Dto), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> AddFriend([FromRoute] int id, [FromBody] UserIdDto other)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             Friendship? friendship = await _userRepo.GetFriendshipAsync(id, other.Id);
@@ -65,11 +66,12 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> RemoveFriend([FromRoute] int id, [FromRoute] int friendId)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             Friendship? friendship = await _userRepo.RemoveFriend(id, friendId);
@@ -87,11 +89,12 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetSentRequests([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             List<User>? requestedFriends = await _userRepo.GetSentRequestsAsync(id);
@@ -109,11 +112,12 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(List<UserMinimizedDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetReceivedRequests([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             List<User>? requestingUsers = await _userRepo.GetReceivedRequestsAsync(id);
@@ -131,6 +135,7 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(Error409Dto), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> SendFriendRequest(
             [FromRoute] int id,
@@ -139,7 +144,7 @@ namespace Controllers
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             Friendship? friendship = await _userRepo.GetFriendshipAsync(id, other.Id);
@@ -170,6 +175,7 @@ namespace Controllers
         [HttpDelete("requests/{friendId}")]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteFriendRequest(
             [FromRoute] int id,
@@ -178,7 +184,7 @@ namespace Controllers
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             FriendRequest? friendRequest = await _userRepo.DenyRequest(id, friendId);

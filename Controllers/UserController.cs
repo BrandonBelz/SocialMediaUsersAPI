@@ -51,6 +51,7 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UploadProfilePic(
             [FromRoute] int id,
             [FromForm] UploadProfilePicDto picDto
@@ -58,7 +59,7 @@ namespace Controllers
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             User? user = await _userRepo.AddProfilePic(id, picDto);
@@ -76,11 +77,12 @@ namespace Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> DeleteProfilePic([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             User? user = await _userRepo.GetUserAsync(id);
@@ -143,6 +145,7 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Update(
             [FromRoute] int id,
             [FromBody] UpdateUserRequestDto requestDto
@@ -150,7 +153,7 @@ namespace Controllers
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             User? user = await _userRepo.UpdateAsync(id, requestDto);
@@ -168,11 +171,12 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!User.IsInRole("Service") && CurrentUserId != id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             User? toDelete = await _userRepo.DeleteAsync(id);
@@ -190,11 +194,12 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(UserPrivateDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetMe()
         {
             if (User.IsInRole("Service"))
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             User? me = await _userRepo.GetUserAsync(CurrentUserId);
@@ -212,11 +217,12 @@ namespace Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetProfile([FromRoute] int id)
         {
             if (User.IsInRole("Service") || CurrentUserId == id)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             User? user = await _userRepo.GetUserAsync(id, true);
